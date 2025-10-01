@@ -587,45 +587,6 @@ require('lazy').setup({
         -- Python LSP Configuration with Pyright
         -- Pyright is a fast, feature-rich language server for Python
         pyright = {
-          -- Function to find and set the Python path from .venv
-          -- This ensures Pyright uses the correct virtual environment
-          -- before_init = function(_, config)
-          --   -- Helper function to find .venv directory by searching upward
-          --   local function find_venv(start_path)
-          --     local path = start_path
-          --     -- Search up to 10 levels up from current file
-          --     for _ = 1, 10 do
-          --       local venv_path = path .. '/.venv/bin/python'
-          --       if vim.fn.executable(venv_path) == 1 then
-          --         return venv_path
-          --       end
-          --       -- Try pyvenv.cfg to detect venv root
-          --       local pyvenv = path .. '/.venv/pyvenv.cfg'
-          --       if vim.fn.filereadable(pyvenv) == 1 then
-          --         return path .. '/.venv/bin/python'
-          --       end
-          --       -- Move up one directory
-          --       local parent = vim.fn.fnamemodify(path, ':h')
-          --       if parent == path then
-          --         break -- Reached root
-          --       end
-          --       path = parent
-          --     end
-          --     return nil
-          --   end
-          --
-          --   -- Try to find venv starting from the file's directory
-          --   local venv_python = find_venv(vim.fn.expand '%:p:h')
-          --   if not venv_python then
-          --     -- If not found, try from current working directory
-          --     venv_python = find_venv(vim.fn.getcwd())
-          --   end
-          --
-          --   -- Set the Python path if found
-          --   if venv_python then
-          --     config.settings.python.pythonPath = venv_python
-          --   end
-          -- end,
           settings = {
             python = {
               analysis = {
@@ -688,6 +649,7 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'markdownlint', -- Linter for Markdown
         -- Note: ruff is not listed here because it's installed system-wide via UV
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -744,7 +706,7 @@ require('lazy').setup({
         -- Python formatting with Ruff
         -- Ruff is an extremely fast Python linter and formatter written in Rust
         -- It can replace Black, isort, and many other tools
-        python = { 'ruff_format' },
+        python = { 'ruff_fix', 'ruff_format' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
@@ -921,7 +883,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'python' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'python', 'go' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
