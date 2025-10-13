@@ -80,6 +80,10 @@ vim.o.scrolloff = 3
 -- See `:help 'confirm'`
 vim.o.confirm = true
 
+-- Enable spell checking
+vim.o.spell = true
+vim.o.spelllang = 'en_us'
+
 -- [[ Configure LSP Hover Handler ]]
 -- Fix markdown rendering in hover documentation
 -- This prevents escaped underscores (\_) in Python docstrings and other markdown content
@@ -109,6 +113,10 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+
+-- Spell-checking
+vim.keymap.set('n', '<leader>z=', 'z=', { desc = 'Spelling suggestions' })
+vim.keymap.set('n', '<leader>za', 'zg', { desc = 'Spelling: Add word' })
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -199,6 +207,7 @@ require('lazy').setup({
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+        { '<leader>z', group = 'Spelling' },
       },
     },
   },
