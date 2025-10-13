@@ -32,28 +32,19 @@ return {
     end,
   },
   {
-    'benlubas/molten-nvim',
-    version = '*',
-    dependencies = { 'nvim-lua/plenary.nvim' },
-    build = ':MoltenUpdate',
-    init = function()
-      vim.g.molten_output_port = 3000
-      vim.g.molten_image_port = 3001
-    end,
-    keys = {
-      { '<leader>mi', '<cmd>MoltenInit python<cr>', desc = 'Molten: Initialize' },
-      { '<leader>mR', '<cmd>MoltenRunAll<cr>', desc = 'Molten: Run All' },
-      { '<leader>mr', '<cmd>MoltenRunCell<cr>', desc = 'Molten: Run Cell' },
-      { '<leader>mo', '<cmd>MoltenShowOutput<cr>', desc = 'Molten: Show Output' },
-      { '<leader>mp', '<cmd>MoltenShowOutput<cr>', desc = 'Molten: Show Plot' },
-    },
-  },
-  {
     'github/copilot.vim',
     lazy = false,
-    init = function()
+    config = function()
       vim.g.copilot_no_tab_map = true
-      vim.g.copilot_assume_mapped = true
+
+      vim.keymap.set('i', '<C-l>', 'copilot#Accept("\\<CR>")', {
+        expr = true,
+        silent = true,
+        replace_keycodes = false,
+      })
+
+      vim.keymap.set('i', '<M-w>', '<Plug>(copilot-accept-word)', { silent = true })
+      vim.keymap.set('i', '<M-l>', '<Plug>(copilot-accept-line)', { silent = true })
     end,
   },
   {
@@ -65,12 +56,27 @@ return {
     build = 'make tiktoken',
     opts = {
       debug = false, -- Enable debugging
+      model = 'gpt-5-mini',
     },
     keys = {
       { '<leader>cc', '<cmd>CopilotChat<cr>', desc = 'Copilot: Chat' },
       { '<leader>ce', '<cmd>CopilotChatExplain<cr>', desc = 'Copilot: Explain' },
       { '<leader>cf', '<cmd>CopilotChatFix<cr>', desc = 'Copilot: Fix' },
     },
-  }
+  },
+  {
+    'TimUntersberger/neogit',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'sindrets/diffview.nvim',
+    },
+    config = true,
+    keys = {
+      {
+        '<leader>gg',
+        function() require('neogit').open() end,
+        desc = 'Neogit: Open',
+      },
+    },
+  },
 }
-

@@ -182,18 +182,6 @@ require('lazy').setup({
   -- options to `gitsigns.nvim`.
   --
   -- See `:help gitsigns` to understand what the configuration keys do
-  { -- Adds git related signs to the gutter, as well as utilities for managing changes
-    'lewis6991/gitsigns.nvim',
-    opts = {
-      signs = {
-        add = { text = '+' },
-        change = { text = '~' },
-        delete = { text = '_' },
-        topdelete = { text = '‾' },
-        changedelete = { text = '~' },
-      },
-    },
-  },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
@@ -585,28 +573,34 @@ require('lazy').setup({
         -- clangd = {},
         gopls = {},
         -- Python LSP Configuration with Pyright
-        -- Pyright is a fast, feature-rich language server for Python
-        pyright = {
-          settings = {
-            python = {
-              analysis = {
-                -- Type checking mode: "off", "basic", "standard", "strict"
-                -- "basic" is recommended for most projects
-                typeCheckingMode = 'standard',
-                -- Automatically search for imports in workspace
-                autoSearchPaths = true,
-                -- Use library code for types even if it's not in the workspace
-                useLibraryCodeForTypes = true,
-                -- Diagnostic severity overrides
-                diagnosticSeverityOverrides = {
-                  -- Customize these based on your preference
-                  reportUnusedImport = 'warning',
-                  reportUnusedVariable = 'warning',
-                },
-              },
-            },
-          },
+        -- Python LSP via Pyrefly
+        pyrefly = {
+          cmd = { 'uvx', 'pyrefly', 'lsp' },
+          -- Custom settings below if any...
+          -- settings = {},
         },
+        -- Pyright is a fast, feature-rich language server for Python
+        -- pyright = {
+        --   settings = {
+        --     python = {
+        --       analysis = {
+        --         -- Type checking mode: "off", "basic", "standard", "strict"
+        --         -- "basic" is recommended for most projects
+        --         typeCheckingMode = 'standard',
+        --         -- Automatically search for imports in workspace
+        --         autoSearchPaths = true,
+        --         -- Use library code for types even if it's not in the workspace
+        --         useLibraryCodeForTypes = true,
+        --         -- Diagnostic severity overrides
+        --         diagnosticSeverityOverrides = {
+        --           -- Customize these based on your preference
+        --           reportUnusedImport = 'warning',
+        --           reportUnusedVariable = 'warning',
+        --         },
+        --       },
+        --     },
+        --   },
+        -- },
         rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -820,23 +814,55 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
+    'catppuccin/nvim',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     config = function()
       ---@diagnostic disable-next-line: missing-fields
-      require('tokyonight').setup {
+      require('catppuccin').setup {
+        flavour = 'macchiato', -- latte, frappe, macchiato, mocha
+        background = { -- :h background
+          light = 'latte',
+          dark = 'mocha',
+        },
+        transparent_background = false,
+        show_end_of_buffer = false, -- show the '~' characters after the end of buffers
+        term_colors = false,
+        dim_inactive = {
+          enabled = true,
+          shade = 'dark',
+          percentage = 0.15,
+        },
+        no_italic = false, -- Force no italic
+        no_bold = false, -- Force no bold
         styles = {
-          comments = { italic = false }, -- Disable italics in comments
+          comments = { 'italic' },
+          conditionals = { 'italic' },
+          loops = {},
+          functions = {},
+          keywords = {},
+          strings = {},
+          variables = {},
+          numbers = {},
+          booleans = {},
+          properties = {},
+          types = {},
+          operators = {},
+        },
+        color_overrides = {},
+        custom_highlights = {},
+        integrations = {
+          cmp = true,
+          gitsigns = true,
+          nvimtree = true,
+          telescope = true,
+          notify = true,
+          mini = true,
         },
       }
 
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'catppuccin'
     end,
   },
-
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
@@ -917,7 +943,7 @@ require('lazy').setup({
   require 'kickstart.plugins.lint', -- Enable linting with nvim-lint
   -- require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
