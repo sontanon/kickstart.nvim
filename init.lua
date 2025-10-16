@@ -433,20 +433,18 @@ require('lazy').setup({
             [vim.diagnostic.severity.ERROR] = '󰅚 ',
             [vim.diagnostic.severity.WARN] = '󰀪 ',
             [vim.diagnostic.severity.INFO] = '󰋽 ',
-            [vim.diagnostic.severity.HINT] = '󰌶 ',
+            [vim.diagnostic.severity.HINT] = '💡', -- Lightbulb for hints (often code actions)
           },
         } or {},
         virtual_text = {
           source = 'if_many',
           spacing = 2,
           format = function(diagnostic)
-            local diagnostic_message = {
-              [vim.diagnostic.severity.ERROR] = diagnostic.message,
-              [vim.diagnostic.severity.WARN] = diagnostic.message,
-              [vim.diagnostic.severity.INFO] = diagnostic.message,
-              [vim.diagnostic.severity.HINT] = diagnostic.message,
-            }
-            return diagnostic_message[diagnostic.severity]
+            -- Include error code if available (e.g., Ruff's F401, E501)
+            if diagnostic.code then
+              return string.format('[%s] %s', diagnostic.code, diagnostic.message)
+            end
+            return diagnostic.message
           end,
         },
       }
@@ -463,12 +461,31 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         gopls = {},
-        -- Python LSP Configuration with Pyright
-        -- Python LSP via Pyrefly
+        -- Python LSP Configuration
+        -- Pyrefly: Fast, AI-powered Python language server from Meta
+        -- Provides completions, hover, diagnostics, and type checking
         pyrefly = {
+          -- Uses global installation via: uv tool install pyrefly
           cmd = { 'uvx', 'pyrefly', 'lsp' },
-          -- Custom settings below if any...
-          -- settings = {},
+          settings = {
+            python = {
+              pyrefly = {
+                -- Force type error diagnostics to show even without pyrefly.toml
+                -- Options: 'default' (needs config), 'force-on', 'force-off'
+                displayTypeErrors = 'force-on',
+              },
+            },
+          },
+        },
+        -- Ruff: Extremely fast Python linter as an LSP
+        -- Provides real-time linting diagnostics via LSP protocol
+        -- Uses global installation via: uv tool install ruff
+        ruff = {
+          cmd = { 'uvx', 'ruff', 'server' },
+          -- Disable hover since Pyrefly handles it better
+          on_attach = function(client, bufnr)
+            client.server_capabilities.hoverProvider = false
+          end,
         },
         -- Pyright is a fast, feature-rich language server for Python
         -- pyright = {
@@ -518,11 +535,20 @@ require('lazy').setup({
         },
       }
 
-      local ensure_installed = vim.tbl_keys(servers or {})
+      -- Filter out servers that use uvx (installed globally via UV)
+      local mason_servers = {}
+      for server_name, config in pairs(servers) do
+        -- Skip servers that have custom cmd using uvx
+        if not config.cmd or not vim.startswith(vim.inspect(config.cmd), '{ "uvx"') then
+          table.insert(mason_servers, server_name)
+        end
+      end
+      
+      local ensure_installed = mason_servers
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
-        'markdownlint', -- Linter for Markdown
-        -- Note: ruff is not listed here because it's installed system-wide via UV
+        -- 'markdownlint', -- Linter for Markdown
+        -- Note: pyrefly and ruff are installed globally via: uv tool install
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -578,7 +604,8 @@ require('lazy').setup({
         -- Python formatting with Ruff
         -- Ruff is an extremely fast Python linter and formatter written in Rust
         -- It can replace Black, isort, and many other tools
-        python = { 'ruff_fix', 'ruff_format' },
+        -- On save: fix issues, format code, organize/remove unused imports
+        python = { 'ruff_fix', 'ruff_format', 'ruff_organize_imports' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
@@ -750,6 +777,13 @@ require('lazy').setup({
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
+  },
+  {
+    'MeanderingProgrammer/render-markdown.nvim',
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-mini/mini.nvim' },
+    ---@module 'render-markdown'
+    ---@type render.md.UserConfig
+    opts = {},
   },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',

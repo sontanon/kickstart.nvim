@@ -7,9 +7,9 @@ return {
       local lint = require 'lint'
       lint.linters_by_ft = {
         markdown = { 'markdownlint' },
-        -- Python linting with Ruff
-        -- Ruff checks for style issues, common errors, and code quality
-        python = { 'ruff' },
+        -- Python linting is handled by Ruff LSP server (via lspconfig), not nvim-lint
+        -- This avoids duplicate diagnostics since Ruff LSP provides real-time linting
+        -- python = { 'ruff' },
       }
 
       -- To allow other plugins to add linters to require('lint').linters_by_ft,
