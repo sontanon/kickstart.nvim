@@ -124,7 +124,7 @@ vim.keymap.set('n', '<leader>za', 'zg', { desc = 'Spelling: Add word' })
 -- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
 -- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
--- TIP: Disable arrow keys in normal mode-- [[ Basic Autocommands ]]
+-- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
 -- Highlight when yanking (copying) text
@@ -464,9 +464,8 @@ require('lazy').setup({
         -- Python LSP Configuration
         -- Pyrefly: Fast, AI-powered Python language server from Meta
         -- Provides completions, hover, diagnostics, and type checking
+        -- Installed via Mason for better reliability in VDI environments
         pyrefly = {
-          -- Uses global installation via: uv tool install pyrefly
-          cmd = { 'uvx', 'pyrefly', 'lsp' },
           settings = {
             python = {
               pyrefly = {
@@ -479,9 +478,8 @@ require('lazy').setup({
         },
         -- Ruff: Extremely fast Python linter as an LSP
         -- Provides real-time linting diagnostics via LSP protocol
-        -- Uses global installation via: uv tool install ruff
+        -- Installed via Mason for better reliability in VDI environments
         ruff = {
-          cmd = { 'uvx', 'ruff', 'server' },
           -- Disable hover since Pyrefly handles it better
           on_attach = function(client, bufnr)
             client.server_capabilities.hoverProvider = false
@@ -535,20 +533,11 @@ require('lazy').setup({
         },
       }
 
-      -- Filter out servers that use uvx (installed globally via UV)
-      local mason_servers = {}
-      for server_name, config in pairs(servers) do
-        -- Skip servers that have custom cmd using uvx
-        if not config.cmd or not vim.startswith(vim.inspect(config.cmd), '{ "uvx"') then
-          table.insert(mason_servers, server_name)
-        end
-      end
-      
-      local ensure_installed = mason_servers
+      -- Ensure all servers and tools are installed via Mason
+      local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
-        -- 'markdownlint', -- Linter for Markdown
-        -- Note: pyrefly and ruff are installed globally via: uv tool install
+        'ruff', -- Python linter and formatter
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -577,7 +566,7 @@ require('lazy').setup({
       {
         '<leader>f',
         function()
-          require('conform').format { async = true, lsp_format = 'fallback' }
+          require('conform').format { async = true, lsp_format = 'fallback', timeout_ms = 3000 }
         end,
         mode = '',
         desc = '[F]ormat buffer',
@@ -586,31 +575,32 @@ require('lazy').setup({
     opts = {
       notify_on_error = false,
       format_on_save = function(bufnr)
-        -- Disable "format_on_save lsp_fallback" for languages that don't
-        -- have a well standardized coding style. You can add additional
-        -- languages here or re-enable it for the disabled ones.
+        -- Disable format_on_save for languages that don't have a well standardized coding style
         local disable_filetypes = { c = true, cpp = true }
         if disable_filetypes[vim.bo[bufnr].filetype] then
           return nil
-        else
-          return {
-            timeout_ms = 500,
-            lsp_format = 'fallback',
-          }
         end
+        return {
+          timeout_ms = 2000, -- Increased from 500ms for better reliability in VDI environments
+          lsp_format = 'fallback',
+        }
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
-        -- Python formatting with Ruff
-        -- Ruff is an extremely fast Python linter and formatter written in Rust
-        -- It can replace Black, isort, and many other tools
-        -- On save: fix issues, format code, organize/remove unused imports
+        -- Python: Ruff handles linting, formatting, and import organization
         python = { 'ruff_fix', 'ruff_format', 'ruff_organize_imports' },
-        -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+      },
+      -- Formatter-specific settings with increased timeouts for VDI reliability
+      formatters = {
+        ruff_fix = {
+          timeout_ms = 2000,
+        },
+        ruff_format = {
+          timeout_ms = 2000,
+        },
+        ruff_organize_imports = {
+          timeout_ms = 2000,
+        },
       },
     },
   },

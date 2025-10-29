@@ -7,6 +7,7 @@ return {
       local lint = require 'lint'
       lint.linters_by_ft = {
         markdown = { 'markdownlint' },
+        go = { 'golangcilint' },
         -- Python linting is handled by Ruff LSP server (via lspconfig), not nvim-lint
         -- This avoids duplicate diagnostics since Ruff LSP provides real-time linting
         -- python = { 'ruff' },
