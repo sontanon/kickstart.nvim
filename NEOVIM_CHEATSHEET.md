@@ -29,7 +29,7 @@ Your setup uses the Language Server Protocol (LSP) for code intelligence, just l
 | **Inlay Hints** | (Enabled by default) | `<leader>th` | Toggles on/off extra info like parameter names. |
 | **Signature Help** | (Automatic) | `<c-k>` (in Insert Mode) | Manually trigger function signature help. |
 
-## Formatting & Linting (with Ruff)
+## Formatting, Linting & Type Checking (Python)
 
 Your configuration automates most of this, providing a seamless experience.
 
@@ -38,6 +38,9 @@ Your configuration automates most of this, providing a seamless experience.
     -   To trigger it manually, press `<leader>f`.
 -   **Organize Imports & Auto-Fix:**
     -   **Neovim:** This also happens **automatically on save**, right before formatting. The `ruff_fix` command organizes imports and fixes all other safe linting issues it can find.
+-   **Type Checking:**
+    -   Handled by **`ty`** (Astral's Rust-based type checker), running as an LSP server alongside `ruff`. Type errors appear as diagnostics inline. `ty` also owns hover (`K`) for type info.
+    -   `ruff` handles linting/formatting diagnostics; `ty` handles type errors. Both are Mason-managed.
 
 ## Debugging
 
@@ -61,33 +64,6 @@ This provides an interactive, cell-based workflow inside any Python script.
 3.  **Run a Cell:** Press `<leader>mr` to execute the cell your cursor is in.
 4.  **Run All Cells:** Press `<leader>mR`.
 5.  **Show Output:** Press `<leader>mo` to view the output/plot window if you've closed it.
-
-## GitHub Copilot
-
-Your setup uses a combination of two plugins for a full Copilot experience: `copilot.vim` for completions and `CopilotChat.nvim` for chat and agent-like features.
-
-### 1. First-Time Setup: Authentication
-
-The core `copilot.vim` plugin handles authentication. You only need to do this once.
-
-1.  Restart Neovim. The new plugins will be installed.
-2.  Run the command `:Copilot auth`.
-3.  Copilot will give you a code to enter on GitHub's device activation page.
-4.  Follow the browser instructions to complete authentication.
-
-### 2. Workflow & Keymaps
-
-#### Inline Completions (from `copilot.vim`)
-
--   **Automatic Suggestions:** As you type, Copilot will provide suggestions as "ghost text".
--   **Accept Suggestion:** Press `<Tab>` to accept the current suggestion.
--   **Cycle Suggestions:** Use `Alt+]` and `Alt+[` to cycle between different suggestions.
-
-#### Chat & Agent Features (from `CopilotChat.nvim`)
-
--   **`<leader>cc`**: **C**opilot **C**hat. Opens a chat window to ask questions.
--   **`<leader>ce`**: **C**opilot **E**xplain. Asks Copilot to explain the selected code.
--   **`<leader>cf`**: **C**opilot **F**ix. Asks Copilot to suggest a fix for the selected code or diagnostics under the cursor.
 
 ## General Neovim Tips
 

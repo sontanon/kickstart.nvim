@@ -28,39 +28,6 @@ return {
     end,
   },
   {
-    'github/copilot.vim',
-    lazy = false,
-    config = function()
-      vim.g.copilot_no_tab_map = true
-
-      vim.keymap.set('i', '<C-l>', 'copilot#Accept("\\<CR>")', {
-        expr = true,
-        silent = true,
-        replace_keycodes = false,
-      })
-
-      vim.keymap.set('i', '<M-w>', '<Plug>(copilot-accept-word)', { silent = true })
-      vim.keymap.set('i', '<M-l>', '<Plug>(copilot-accept-line)', { silent = true })
-    end,
-  },
-  {
-    'CopilotC-Nvim/CopilotChat.nvim',
-    dependencies = {
-      { 'github/copilot.vim' },
-      { 'nvim-lua/plenary.nvim' },
-    },
-    build = 'make tiktoken',
-    opts = {
-      debug = false, -- Enable debugging
-      model = 'gpt-5-mini',
-    },
-    keys = {
-      { '<leader>cc', '<cmd>CopilotChat<cr>', desc = 'Copilot: Chat' },
-      { '<leader>ce', '<cmd>CopilotChatExplain<cr>', desc = 'Copilot: Explain' },
-      { '<leader>cf', '<cmd>CopilotChatFix<cr>', desc = 'Copilot: Fix' },
-    },
-  },
-  {
     'TimUntersberger/neogit',
     dependencies = {
       'nvim-lua/plenary.nvim',

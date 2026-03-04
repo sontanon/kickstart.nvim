@@ -80,9 +80,6 @@ vim.o.scrolloff = 3
 -- See `:help 'confirm'`
 vim.o.confirm = true
 
--- Enable spell checking
-vim.o.spell = true
-vim.o.spelllang = 'en_us'
 
 -- [[ Configure LSP Hover Handler ]]
 -- Fix markdown rendering in hover documentation
@@ -114,9 +111,6 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
--- Spell-checking
-vim.keymap.set('n', '<leader>z=', 'z=', { desc = 'Spelling suggestions' })
-vim.keymap.set('n', '<leader>za', 'zg', { desc = 'Spelling: Add word' })
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -207,7 +201,6 @@ require('lazy').setup({
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
-        { '<leader>z', group = 'Spelling' },
       },
     },
   },
@@ -461,52 +454,15 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         gopls = {},
-        -- Python LSP Configuration
-        -- Pyrefly: Fast, AI-powered Python language server from Meta
-        -- Provides completions, hover, diagnostics, and type checking
-        -- Installed via Mason for better reliability in VDI environments
-        pyrefly = {
-          settings = {
-            python = {
-              pyrefly = {
-                -- Force type error diagnostics to show even without pyrefly.toml
-                -- Options: 'default' (needs config), 'force-on', 'force-off'
-                displayTypeErrors = 'force-on',
-              },
-            },
-          },
-        },
-        -- Ruff: Extremely fast Python linter as an LSP
-        -- Provides real-time linting diagnostics via LSP protocol
-        -- Installed via Mason for better reliability in VDI environments
+        -- Ruff: Fast Python linter and formatter as an LSP (Mason-managed)
         ruff = {
-          -- Disable hover since Pyrefly handles it better
-          on_attach = function(client, bufnr)
+          on_attach = function(client, _)
+            -- Disable hover: ty handles type info and hover instead
             client.server_capabilities.hoverProvider = false
           end,
         },
-        -- Pyright is a fast, feature-rich language server for Python
-        -- pyright = {
-        --   settings = {
-        --     python = {
-        --       analysis = {
-        --         -- Type checking mode: "off", "basic", "standard", "strict"
-        --         -- "basic" is recommended for most projects
-        --         typeCheckingMode = 'standard',
-        --         -- Automatically search for imports in workspace
-        --         autoSearchPaths = true,
-        --         -- Use library code for types even if it's not in the workspace
-        --         useLibraryCodeForTypes = true,
-        --         -- Diagnostic severity overrides
-        --         diagnosticSeverityOverrides = {
-        --           -- Customize these based on your preference
-        --           reportUnusedImport = 'warning',
-        --           reportUnusedVariable = 'warning',
-        --         },
-        --       },
-        --     },
-        --   },
-        -- },
+        -- ty: Extremely fast Python type checker from Astral (Mason-managed)
+        ty = {},
         rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -531,13 +487,16 @@ require('lazy').setup({
             },
           },
         },
+        -- typos-lsp: Fast spell/typo checker for code
+        -- Works across all file types, understands code context
+        typos_lsp = {},
       }
 
       -- Ensure all servers and tools are installed via Mason
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
-        'ruff', -- Python linter and formatter
+        -- 'markdownlint', -- Linter for Markdown
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
