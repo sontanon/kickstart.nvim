@@ -696,21 +696,13 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     config = function()
-      -- Install parsers for languages we actively use
-      require('nvim-treesitter').install({
-        'bash', 'c', 'diff', 'html', 'lua', 'luadoc',
-        'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc',
-        'python', 'go', 'rust',
-      })
-      -- Auto-install parser when opening a file with an unrecognised filetype
-      vim.api.nvim_create_autocmd('FileType', {
-        callback = function(ev)
-          local lang = vim.treesitter.language.get_lang(vim.bo[ev.buf].filetype)
-          if lang then
-            pcall(require('nvim-treesitter').install, { lang })
-          end
-        end,
-      })
+      require('nvim-treesitter').setup {
+        ensure_installed = {
+          'bash', 'c', 'diff', 'html', 'lua', 'luadoc',
+          'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc',
+          'python', 'go', 'rust',
+        },
+      }
     end,
   },
 
