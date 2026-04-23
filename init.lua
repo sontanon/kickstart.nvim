@@ -477,6 +477,28 @@ require('lazy').setup({
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
+      -- Auto-prune Mason packages not explicitly listed above.
+      -- Set vim.g.disable_mason_prune = true in your init.lua before this loads
+      -- if you prefer to manage Mason packages manually.
+      if not vim.g.disable_mason_prune then
+        local function prune_mason()
+          local ok, registry = pcall(require, 'mason-registry')
+          if not ok then
+            return
+          end
+          local allowed = {}
+          for _, name in ipairs(ensure_installed) do
+            allowed[name] = true
+          end
+          for _, pkg in ipairs(registry.get_installed_packages()) do
+            if not allowed[pkg.name] then
+              pkg:uninstall()
+            end
+          end
+        end
+        prune_mason()
+      end
+
       require('mason-lspconfig').setup {
         ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
         automatic_installation = false,
@@ -694,15 +716,42 @@ require('lazy').setup({
   },
   { -- Parser installation and updates (highlighting/indent now built into Neovim 0.12+)
     'nvim-treesitter/nvim-treesitter',
+    branch = 'main',
+    lazy = false,
     build = ':TSUpdate',
     config = function()
-      require('nvim-treesitter').setup {
-        ensure_installed = {
-          'bash', 'c', 'diff', 'html', 'lua', 'luadoc',
-          'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc',
-          'python', 'go', 'rust',
-        },
+      -- New nvim-treesitter (main branch) requires tree-sitter-cli 0.26.1+.
+      -- setup() is required to prepend the install_dir to runtimepath so Neovim
+      -- can find the compiled parsers. Without this, parsers exist on disk but
+      -- are invisible to Neovim.
+      require('nvim-treesitter').setup()
+
+      -- On first boot, parsers are missing and must be installed *synchronously*
+      -- so that plugins like render-markdown don't crash when opening files.
+      local langs = {
+        'bash', 'c', 'diff', 'html', 'lua', 'luadoc',
+        'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc',
+        'python', 'go', 'rust',
       }
+      local parser_dir = vim.fn.stdpath('data') .. '/site/parser'
+      local missing = {}
+      for _, lang in ipairs(langs) do
+        if vim.fn.filereadable(parser_dir .. '/' .. lang .. '.so') == 0 then
+          table.insert(missing, lang)
+        end
+      end
+      if #missing > 0 then
+        -- Batch install first. Some languages (e.g. lua) may be skipped because
+        -- Neovim 0.12 bundles their queries in /usr/share/nvim/runtime/queries/,
+        -- so nvim-treesitter thinks they're already installed (issue #8567).
+        require('nvim-treesitter').install(langs):wait(300000)
+        -- Force-install any languages whose .so is still missing.
+        for _, lang in ipairs(missing) do
+          if vim.fn.filereadable(parser_dir .. '/' .. lang .. '.so') == 0 then
+            require('nvim-treesitter').install({ lang }, { force = true }):wait(30000)
+          end
+        end
+      end
     end,
   },
 

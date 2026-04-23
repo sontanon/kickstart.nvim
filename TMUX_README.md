@@ -1,31 +1,39 @@
 # Tmux Setup
 
-## 1. Install TPM (Tmux Plugin Manager)
+## Prerequisites
+
+- **tmux** installed via your package manager.
+- **Git** (to clone TPM).
+
+## Installation
+
+### 1. Install TPM (Tmux Plugin Manager)
 
 ```bash
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 ```
 
-## 2. Link the config
+### 2. Link the config
 
 ```bash
 ln -sf ~/.config/nvim/.tmux.conf ~/.tmux.conf
 ```
 
-Adjust the source path if your Neovim config lives elsewhere.
+> If your Neovim config lives somewhere other than `~/.config/nvim`, adjust the source path above.
 
-## 3. Install plugins
-
-Start a tmux session, then press `prefix + I` (capital I) to fetch and install all plugins.
+### 3. Start tmux and install plugins
 
 ```bash
 tmux new -s main
-# Inside tmux: Ctrl-b then I
 ```
 
-## 4. Reload config
+Inside tmux, press `prefix + I` (capital **I**) to fetch and install all plugins. You should see a status message listing the installed plugins.
 
-After changes to `.tmux.conf`, reload without restarting:
+> **Why this step matters:** The config is designed to fail gracefully if TPM hasn't been installed yet. The catppuccin theme simply won't load, so the status bar may look plain until you run this step.
+
+### 4. Reload config after future changes
+
+After editing `.tmux.conf`, reload without restarting tmux:
 
 ```
 prefix + r
@@ -53,7 +61,7 @@ prefix + r
 
 | Key | Description |
 |---|---|
-| `prefix + \|` | Split vertically (opens in current directory) |
+| `prefix + \| ` | Split vertically (opens in current directory) |
 | `prefix + -` | Split horizontally (opens in current directory) |
 | `prefix + x` | Kill pane |
 | `prefix + z` | Zoom pane |

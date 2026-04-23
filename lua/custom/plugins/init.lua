@@ -18,7 +18,13 @@ return {
       'nvim-lua/plenary.nvim',
       'sindrets/diffview.nvim',
     },
-    config = true,
+    config = function()
+      require('neogit').setup {
+        integrations = {
+          diffview = true,
+        },
+      }
+    end,
     keys = {
       {
         '<leader>gg',
