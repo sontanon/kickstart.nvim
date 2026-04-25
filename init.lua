@@ -80,7 +80,6 @@ vim.o.scrolloff = 3
 -- See `:help 'confirm'`
 vim.o.confirm = true
 
-
 -- Rounded borders for hover and signature help popups
 vim.lsp.handlers['textDocument/hover'] = function(err, result, ctx, config)
   return vim.lsp.handlers.hover(err, result, ctx, vim.tbl_extend('force', config or {}, { border = 'rounded' }))
@@ -106,7 +105,6 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
-
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -683,7 +681,15 @@ require('lazy').setup({
     'echasnovski/mini.nvim',
     config = function()
       -- Better Around/Inside textobjects
-      require('mini.ai').setup { n_lines = 500 }
+      -- NOTE: Remapped to 'aa'/'ii' to avoid conflict with built-in
+      -- treesitter incremental selection on Neovim >= 0.12 (v_an / v_in)
+      require('mini.ai').setup {
+        mappings = {
+          around_next = 'aa',
+          inside_next = 'ii',
+        },
+        n_lines = 500,
+      }
 
       -- Add/delete/replace surroundings (brackets, quotes, etc.)
       require('mini.surround').setup()
@@ -708,17 +714,17 @@ require('lazy').setup({
     end,
   },
   {
-    'MeanderingProgrammer/render-markdown.nvim',
-    dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.nvim' },
-    ---@module 'render-markdown'
-    ---@type render.md.UserConfig
+    'OXY2DEV/markview.nvim',
+    ft = { 'markdown', 'markdown.mdx' },
     opts = {},
   },
-  { -- Parser installation and updates (highlighting/indent now built into Neovim 0.12+)
+
+  { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     branch = 'main',
     lazy = false,
     build = ':TSUpdate',
+    branch = 'main',
     config = function()
       -- New nvim-treesitter (main branch) requires tree-sitter-cli 0.26.1+.
       -- setup() is required to prepend the install_dir to runtimepath so Neovim
